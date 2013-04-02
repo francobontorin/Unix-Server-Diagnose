@@ -8,10 +8,10 @@ The UNIX Server Diagnose Script can compare a server’s configuration against t
 
 The key function of this Tool is enabling the ability to generate a Server Diagnose and Compliance Report on all supported Unix/Linux platforms (AIX, Solaris SPARC and RHEL) in a fully automated way.
 It is displayed in the end of the script execution a detailed output showing the points that do not match the defined versions/standards, and/or the points missing for the box to become compliant.
-• Modular and function based script developed in Shell/Perl Script
-• Korn Shell Compliance (AIX/Linux/Solaris)
-• Flexible and Easy to support
-• It covers Hardware, Network, File Systems and Software’s verification
+ * Modular and function based script developed in Shell/Perl Script
+ * Korn Shell Compliance (AIX/Linux/Solaris)
+ * Flexible and Easy to support
+ * It covers Hardware, Network, File Systems and Software’s verification
 
 <b>Author<b/>
 
