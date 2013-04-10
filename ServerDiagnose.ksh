@@ -100,8 +100,6 @@ function GatherInformation {
 	# NETWORK DETAILS
 	ROUTE_TABLE=$(netstat -nr | grep -v tables) 
 	DNS=$(cat /etc/resolv.conf 2> /dev/null | grep -v ^#) 
-	DNS_DOMAIN=$(grep -w "domain mastercard.int" /etc/resolv.conf 2> /dev/null)
-	DNS_SEARCH=$(grep -w "search mastercard.int" /etc/resolv.conf 2> /dev/null)
 	
 	# SOFTWARES
 	DSMC=$(exit | dsmc 2> /dev/null )
@@ -115,39 +113,6 @@ function GatherInformation {
 
 	if [ "$DSMC_STATUS" == "established" ];then COMPLIANCE_DSMC_STATUS=$OK;else	COMPLIANCE_DSMC_STATUS=$NOK;fi; [[ -z "$DSMC_STATUS" ]] && DSMC_STATUS=N/A
 	if [ ! -z "$SENDMAIL_CFG" ]; then	COMPLIANCE_SENDMAIL=$OK;else	COMPLIANCE_SENDMAIL=$NOK;fi
-	if [ "$DNS_DOMAIN" == "domain mastercard.int" ]; then	COMPLIANCE_DNS_DOMAIN=$OK;else	COMPLIANCE_DNS_DOMAIN=$NOK;fi
-	if [ "$DNS_SEARCH" == "search mastercard.int mastercard.net mastercard.com mclocal.int" ]; then	COMPLIANCE_DNS_SEARCH=$OK;else	COMPLIANCE_DNS_SEARCH=$NOK;fi
-		
-	case $ENVIRONMENT in
-	
-	# STL STAGE
-	(0stl|1stl|4stl)
-		
-		DNS_SERVER=$(awk '/nameserver/ {print $2}' /etc/resolv.conf 2> /dev/null | head -1)
-		if [ "$NTP_SERVER1" == "adm0stl0" ] || [ "$NTP_SERVER1" == "adm0stl1" ]; then	COMPLIANCE_NTP_SERVER1=$OK;else	COMPLIANCE_NTP_SERVER1=$NOK;fi; [[ -z "$NTP_SERVER1" ]] && NTP_SERVER1=N/A
-		if [ "$NTP_SERVER2" == "adm0stl0" ] || [ "$NTP_SERVER2" == "adm0stl1" ]; then	COMPLIANCE_NTP_SERVER2=$OK;else	COMPLIANCE_NTP_SERVER2=$NOK;fi; [[ -z "$NTP_SERVER2" ]] && NTP_SERVER2=N/A
-		if [ "$DNS_SERVER" == "10.157.57.53" ]; then	COMPLIANCE_DNS_SERVER=$OK;else	COMPLIANCE_DNS_SERVER=$NOK;fi; [[ -z "$DNS_SERVER" ]] && DNS_SERVER=N/A
-	;;
-	
-	# STL PROD
-	(2stl)
-		
-		DNS_SERVER=$(awk '/nameserver/ {print $2}' /etc/resolv.conf 2> /dev/null | head -1)
-		if [ "$NTP_SERVER1" == "adm2stl0" ] || [ "$NTP_SERVER1" == "adm2stl1" ]; then	COMPLIANCE_NTP_SERVER1=$OK;else	COMPLIANCE_NTP_SERVER1=$NOK;fi; [[ -z "$NTP_SERVER1" ]] && NTP_SERVER1=N/A
-		if [ "$NTP_SERVER2" == "adm2stl0" ] || [ "$NTP_SERVER2" == "adm2stl1" ]; then	COMPLIANCE_NTP_SERVER2=$OK;else	COMPLIANCE_NTP_SERVER2=$NOK;fi; [[ -z "$NTP_SERVER2" ]] && NTP_SERVER2=N/A
-		if [ "$DNS_SERVER" == "10.154.57.53" ] || [ "$DNS_SERVER" == "10.150.57.53" ] ; then	COMPLIANCE_DNS_SERVER=$OK;else	COMPLIANCE_DNS_SERVER=$NOK;fi; [[ -z "$DNS_SERVER" ]] && DNS_SERVER=N/A
-	;;
-	
-	# KSC PROD
-	(2ksc)
-	
-		DNS_SERVER=$(awk '/nameserver/ {print $2}' /etc/resolv.conf 2> /dev/null | head -1)
-		if [ "$NTP_SERVER1" == "adm2ksc2" ] || [ "$NTP_SERVER1" == "adm2ksc3" ]; then	COMPLIANCE_NTP_SERVER1=$OK;else	COMPLIANCE_NTP_SERVER1=$NOK;fi; [[ -z "$NTP_SERVER1" ]] && NTP_SERVER1=N/A
-		if [ "$NTP_SERVER2" == "adm2ksc2" ] || [ "$NTP_SERVER2" == "adm2ksc3" ]; then	COMPLIANCE_NTP_SERVER2=$OK;else	COMPLIANCE_NTP_SERVER2=$NOK;fi; [[ -z "$NTP_SERVER2" ]] && NTP_SERVER2=N/A
-		if [ "$DNS_SERVER" == "10.150.57.53" ] || [ "$DNS_SERVER" == "10.154.57.53" ] ; then	COMPLIANCE_DNS_SERVER=$OK;else	COMPLIANCE_DNS_SERVER=$NOK;fi; [[ -z "$DNS_SERVER" ]] && DNS_SERVER=N/A
-	;;
-	
-	esac
 
 	case $PLATFORM in
 	
