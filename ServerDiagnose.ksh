@@ -27,7 +27,7 @@ NOK=$(printf "\033[00;31mNOT OK\033[00m")
 OK=$(printf "\033[00;32mOK\033[00m")
 LATEST=$(printf "\033[00;32mUP TO DATE\033[00m")
 NLATEST=$(printf "\033[00;33mOUTDATED\033[00m")
-TEMPLATE=/sys_apps_01/sys_adm/common/AutomationScripts/Compliance/Compliance.tplt
+TEMPLATE=Compliance.tplt
 NTP_SERVER1=$(grep -v "# local clock" /etc/ntp.conf 2> /dev/null | awk '/server/ {print $2}' | head -1)
 NTP_SERVER2=$(grep -v "# local clock" /etc/ntp.conf 2> /dev/null | awk '/server/ {print $2}' | tail -1)
 
@@ -241,14 +241,9 @@ function GatherInformation {
 		POWERPATH=$(powermt version)
 		POWERPATH_VERSION=$(powermt version | awk '{print $7$8$9$10$11}')
 		POWERPATH_VERSION_TPLT=$(awk '/AIX-POWERPATH/ {print $2}' $TEMPLATE)
-		/usr/seos/bin/seversion > /tmp/seversion_output 2>&1
-		SEOS=$(cat /tmp/seversion_output | awk '/Access/ {print $5}') 
-		SEOS_TPLT=$(awk '/AIX-SEOS/ {print $2}' $TEMPLATE)
 		
 		# COMPLIANCE CHECK
-		
-		
-		if [ "$SEOS" == "$SEOS_TPLT" ]; then	COMPLIANCE_SEOS=$LATEST;else	COMPLIANCE_SEOS=$NLATEST;fi; [[ -z "$SEOS" ]] && SEOS=N/A
+				
 		if [ "$ODM_VERSION" == "$ODM_VERSION_TPLT" ]; then	COMPLIANCE_ODM_VERSION=$LATEST;else	COMPLIANCE_ODM_VERSION=$NLATEST;fi
 		if [ "$POWERPATH_VERSION" == "$POWERPATH_VERSION_TPLT" ]; then	COMPLIANCE_POWERPATH_VERSION=$LATEST;else	COMPLIANCE_POWERPATH_VERSION=$NLATEST;fi; [[ -z "$POWERPATH_VERSION" ]] && POWERPATH_VERSION=N/A
 		
@@ -378,14 +373,6 @@ function GatherInformation {
 		if [ "$ETH_SPEED_BKP" == "on" ]; then	COMPLIANCE_ETH_SPEED_BKP=$OK;else	COMPLIANCE_ETH_SPEED_BKP=$NOK;fi; [[ -z "$ETH_SPEED_BKP" ]] && ETH_SPEED_BKP=N/A
 		if [ ! -z "$BKP_ADDRESS" ]; then	COMPLIANCE_BKP_ADDRESS=$OK;else	COMPLIANCE_BKP_ADDRESS=$NOK;fi; [[ -z "$BKP_ADDRESS" ]] && BKP_ADDRESS=N/A
 			
-	# SOFTWARE
-		/usr/seos/bin/seversion > /tmp/seversion_output 2>&1
-		SEOS=$(cat /tmp/seversion_output | awk '/Access/ {print $5}') 
-		SEOS_TPLT=$(awk '/RHEL-SEOS/ {print $2}' $TEMPLATE)
-		
-		# COMPLIANCE CHECK
-		if [ "$SEOS" == "$SEOS_TPLT" ]; then	COMPLIANCE_SEOS=$LATEST;else	COMPLIANCE_SEOS=$NLATEST;fi; [[ -z "$SEOS" ]] && SEOS=N/A
-	
 	# PRINTING REPORTS
 	
 		PrintGlobalReport
@@ -498,13 +485,9 @@ function GatherInformation {
 	
 		POWERPATH_VERSION=$(pkginfo -l EMCpower 2> /dev/null | awk /'VERSION/ {print $2}')
 		POWERPATH_VERSION_TPLT=$(awk '/SUNOS-POWERPATH/ {print $2}' $TEMPLATE)
-		/usr/seos/bin/seversion > /tmp/seversion_output 2>&1
-		SEOS=$(cat /tmp/seversion_output | awk '/Access/ {print $5}')
-		[[ -z "$SEOS" ]] && SEOS=$(cat /tmp/seversion_output | awk '/seversion/ {print $3}' | head -1)
-		SEOS_TPLT=$(awk '/SUNOS-SEOS/ {print $2}' $TEMPLATE)
 		
 		# COMPLIANCE CHECK
-		if [ "$SEOS" == "$SEOS_TPLT" ]; then	COMPLIANCE_SEOS=$LATEST;else	COMPLIANCE_SEOS=$NLATEST;fi; [[ -z "$SEOS" ]] && SEOS=N/A
+		
 		if [ "$POWERPATH_VERSION" == "$POWERPATH_VERSION_TPLT" ]; then	COMPLIANCE_POWERPATH_VERSION=$LATEST;else	COMPLIANCE_POWERPATH_VERSION=$NLATEST;fi
 	
 	
@@ -611,7 +594,6 @@ function PrintGlobalReport {
 		fi
 		
 		printLog "\n\n----------\n$(tput bold)   NTP$(tput sgr0)\n----------\n$(cat /tmp/ntp_output)\n"
-		printLog "\n------------\n$(tput bold)SEOS Version$(tput sgr0)\n------------\n$SEOS\n\n"
 		sleep 10
 	
 }
@@ -626,8 +608,7 @@ function PrintSummaryReport {
 	printLog "+%-69.69s+%30.30s+\n" "----------------------------------------------------------------------" "------------------------------"
 	tput sgr0
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "KERNEL LEVEL" "$OS_LEVEL" "$COMPLIANCE_OS_LEVEL" "$OS_LEVEL_TPLT"
-	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "ACX VERSION" "$SEOS" "$COMPLIANCE_SEOS" "$SEOS_TPLT"
-	
+		
 	case $PLATFORM in
 	
 	(AIX)
@@ -693,8 +674,6 @@ function PrintSummaryReport {
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "DUPLEX MODE BACKUP" "$FULLDUPLEX_BKP" "$COMPLIANCE_FULLDUPLEX_BKP" "Full Duplex"
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "SPEED MODE PRIMARY" "$ETH_SPEED" "$COMPLIANCE_ETH_SPEED" "> 100 Mbps / Auto Negotiation"
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "SPEED MODE BACKUP" "$ETH_SPEED_BKP" "$COMPLIANCE_ETH_SPEED_BKP" "> 100 Mbps / Auto Negotiation"
-	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "DNS DOMAIN" "-" "$COMPLIANCE_DNS_DOMAIN" "DNS Configured"
-	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "DNS SEARCH" "-" "$COMPLIANCE_DNS_SEARCH" "DNS Configured"
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "NAME SERVER" "$DNS_SERVER" "$COMPLIANCE_DNS_SERVER" "Name Server Configured"
 	tput bold
 	printLog "+%-69.69s+%30.30s+\n"  "-----------------------------------------------------------------------" "------------------------------"
