@@ -28,10 +28,13 @@ It is displayed in the end of the script execution a detailed output showing the
  
 $ cat Compliance.tplt
 
-# OPERATING SYSTEM TEMPLATE
+\# OPERATING SYSTEM TEMPLATE
 AIX7-KERNEL     7100-02-01-1245
+
 SUNOS-KERNEL    147440-27
+
 RHEL5-KERNEL    2.6.18-348.el5
+
 RHEL6-KERNEL    2.6.32-279.19.1.el6.x86_64
  
 # SOFTWARE TEMPLATE
