@@ -24,6 +24,23 @@ It is displayed in the end of the script execution a detailed output showing the
 <b>Limitations<b/>
 
   * Here are only the scripts to build the Diagnostic/Compliance script, a template with the default values must be created
+  * This is an example how the template could be created
+ 
+$ cat Compliance.tplt
+
+# OPERATING SYSTEM TEMPLATE
+AIX7-KERNEL     7100-02-01-1245
+SUNOS-KERNEL    147440-27
+RHEL5-KERNEL    2.6.18-348.el5
+RHEL6-KERNEL    2.6.32-279.19.1.el6.x86_64
+ 
+# SOFTWARE TEMPLATE
+AIX-POWERPATH   5.5P05(build1)
+AIX-ODM         5.3.0.6
+SUNOS-POWERPATH 5.5.P01_b002
+ 
+# NETWORK TEMPLATE
+192.168.32.130  255.255.255.0   192.168.32.2
 
 <b>Date<b/>
 
