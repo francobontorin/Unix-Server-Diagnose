@@ -22,7 +22,7 @@ PLATFORM=$(uname)
 OS_VERSION=$(uname -r)
 HOSTNAME=$(uname -n)
 ENVIRONMENT=$(uname -n | cut -c 4-7)
-LOG_FILE=/tmp/UTS-ServerDiagnose-$(date +'%d.%b.%Y-%I.%M%p').report
+LOG_FILE=/tmp/ServerDiagnose-$(date +'%d.%b.%Y-%I.%M%p').report
 NOK=$(printf "\033[00;31mNOT OK\033[00m")
 OK=$(printf "\033[00;32mOK\033[00m")
 LATEST=$(printf "\033[00;32mUP TO DATE\033[00m")
@@ -83,7 +83,6 @@ function RootExecution {
 }
 
 
-
 ##################
 # MAIN FUNCTIONS #
 ##################
@@ -108,12 +107,19 @@ function GatherInformation {
 	SENDMAIL_CFG=$(grep -w "DSesmtp:mailhost" /etc/mail/sendmail.cf 2> /dev/null | grep -v ^#) 
 	ntpq -p > /tmp/ntp_output 2>&1
 	NTP=$(cat /tmp/ntp_output)
-
+	DNS_SERVER=$(awk '/nameserver/ {print $2}' /etc/resolv.conf 2> /dev/null | head -1)
+	DNS_SERVER_TPLT=$(awk '/DNS_SERVER/ {print $2}' $TEMPLATE)
+	NTP_SERVER1_TPLT=$(awk '/NTP_SERVER1/ {print $2}' $TEMPLATE)
+	NTP_SERVER2_TPLT=$(awk '/NTP_SERVER2/ {print $2}' $TEMPLATE)
+	
 	# COMPLIANCE CHECK
 
+	if [ "$DNS_SERVER" == "$DNS_SERVER_TPLT" ];then COMPLIANCE_DNS_SERVER=$OK;else	COMPLIANCE_DNS_SERVER=$NOK;fi; [[ -z "$DNS_SERVER" ]] && DNS_SERVER=N/A
+	if [ "$NTP_SERVER1" == "$NTP_SERVER1_TPLT" ];then COMPLIANCE_NTP_SERVER1=$OK;else	COMPLIANCE_NTP_SERVER1=$NOK;fi; [[ -z "$NTP_SERVER1" ]] && NTP_SERVER1=N/A
+	if [ "$NTP_SERVER2" == "$NTP_SERVER2_TPLT" ];then COMPLIANCE_NTP_SERVER2=$OK;else	COMPLIANCE_NTP_SERVER2=$NOK;fi; [[ -z "$NTP_SERVER2" ]] && NTP_SERVER2=N/A
 	if [ "$DSMC_STATUS" == "established" ];then COMPLIANCE_DSMC_STATUS=$OK;else	COMPLIANCE_DSMC_STATUS=$NOK;fi; [[ -z "$DSMC_STATUS" ]] && DSMC_STATUS=N/A
 	if [ ! -z "$SENDMAIL_CFG" ]; then	COMPLIANCE_SENDMAIL=$OK;else	COMPLIANCE_SENDMAIL=$NOK;fi
-
+		
 	case $PLATFORM in
 	
 	(AIX)
@@ -674,7 +680,7 @@ function PrintSummaryReport {
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "DUPLEX MODE BACKUP" "$FULLDUPLEX_BKP" "$COMPLIANCE_FULLDUPLEX_BKP" "Full Duplex"
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "SPEED MODE PRIMARY" "$ETH_SPEED" "$COMPLIANCE_ETH_SPEED" "> 100 Mbps / Auto Negotiation"
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "SPEED MODE BACKUP" "$ETH_SPEED_BKP" "$COMPLIANCE_ETH_SPEED_BKP" "> 100 Mbps / Auto Negotiation"
-	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "NAME SERVER" "$DNS_SERVER" "$COMPLIANCE_DNS_SERVER" "Name Server Configured"
+	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "NAME SERVER" "$DNS_SERVER" "$COMPLIANCE_DNS_SERVER" "$DNS_SERVER_TPLT"
 	tput bold
 	printLog "+%-69.69s+%30.30s+\n"  "-----------------------------------------------------------------------" "------------------------------"
 	printLog "|%-69.69s|%30.30s\n" "                     SOFTWARE SETTINGS SUMMARY"
@@ -682,8 +688,8 @@ function PrintSummaryReport {
 	tput sgr0
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "DSMC" "-" "$COMPLIANCE_DSMC_STATUS" "TSM Configured" 
 	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "SENDMAIL" "-" "$COMPLIANCE_SENDMAIL" "Sendmail Configured"
-	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "NTP SERVER1" "$NTP_SERVER1" "$COMPLIANCE_NTP_SERVER1" "NTP Configured"
-	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "NTP SERVER2" "$NTP_SERVER2" "$COMPLIANCE_NTP_SERVER2" "NTP Configured"
+	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "NTP SERVER1" "$NTP_SERVER1" "$COMPLIANCE_NTP_SERVER1" "$NTP_SERVER1_TPLT"
+	printLog "|%-25.25s|%30.30s|%25.25s|%30.30s|\n" "NTP SERVER2" "$NTP_SERVER2" "$COMPLIANCE_NTP_SERVER2" "$NTP_SERVER1_TPLT"
 	printLog "+%-69.69s+%30.30s+\n" "-----------------------------------------------------------------------" "------------------------------"
 		
 }
