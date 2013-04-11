@@ -28,14 +28,11 @@ It is displayed in the end of the script execution a detailed output showing the
  
 $ cat Compliance.tplt
 
-\# OPERATING SYSTEM TEMPLATE
-AIX7-KERNEL     7100-02-01-1245
-
-SUNOS-KERNEL    147440-27
-
-RHEL5-KERNEL    2.6.18-348.el5
-
-RHEL6-KERNEL    2.6.32-279.19.1.el6.x86_64
+\# OPERATING SYSTEM TEMPLATE <br>
+AIX7-KERNEL     7100-02-01-1245 <br>
+SUNOS-KERNEL    147440-27 <br>
+RHEL5-KERNEL    2.6.18-348.el5 <br>
+RHEL6-KERNEL    2.6.32-279.19.1.el6.x86_64 <br>
  
 # SOFTWARE TEMPLATE
 AIX-POWERPATH   5.5P05(build1)
